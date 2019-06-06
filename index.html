@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Mini App</title>
+
+    <style>
+      body {
+        background-color: white;
+      }
+      div.select{
+        margin-bottom:2.5em
+      }
+      div.user-photo {
+        margin: 1em auto;
+        height:150px;
+        width:150px;
+        border-radius:50%;
+        overflow:hidden;
+      }
+      div.details {
+        color:white; 
+        background:#6200ee; 
+        font-size:1.3em; 
+        margin-top:4em; 
+        padding:0.5em 1em 0.5em 1em; 
+        border-radius:10px;
+      }
+      .details p{
+        margin:0.3em
+      }
+      div#outcome {
+        position:absolute; 
+        right:2.2em; 
+        bottom:6.5em; 
+        width:100px;
+        text-align:center
+      }
+      #outcome h4 {
+        padding:1em; 
+        background:white; 
+        border-radius:10%; 
+        margin:0 
+      }
+      #outcome p {
+        height:40px; 
+        color:white;
+        border-bottom:5px solid white; 
+        font-size:2em; 
+        margin:0; 
+        padding:0.5em 0 0.5em 0;
+      }
+       #oracle {
+         margin-top:2.5em; 
+        border: 1px solid; 
+         width:100%
+      }
+    </style>
+  </head>
+  <body>
+    <button id = "filter-query" class ="mdc-icon-button material-icons">filter_list</button>
+    <div class = "select">
+      <select class ="select-text"><option disabled selected>Selected User</option></select>
+    <div class="user-photo">
+      <img src="https://via.placeholder.com/150" alt="photo here"/></div>
+    <div class="details mdc-elevation--z3">
+      <p><span class="prop" data-age="">Age :</span><span class="value" data-age-value></span></p>
+      <p><span class="prop" data-height="">Height :</span><span class="value" data-height-value></span></p>
+      <p><span class="prop" data-weight="">Weight :</span><span class="value" data-weight-value></span></p>
+      <p><span class="prop" data-gender="">Gender :</span><span class="value" data-gender-value></span></p>
+      <p><span class="prop" data-country="">Country :</span><span class="value" data-country-value></span></p>
+    </div>
+    <button id="oracle" class="mdc-button">Calculate BMI</button>
+    <div id="outcome"><h4 class="mdc-typography--headline5" >BMI</h4><p></p>
+    </div>
+    <script>
+      const users = [];
+      
+      const countries = [
+        "Chad", 
+        "Sierra Leone", 
+        "Mali", 
+        "Gambia", 
+        "Uganda", 
+        "Ghana", 
+        "Senegal", 
+        "Somalia", 
+        "Ivory Coast", 
+        "Isreal"
+      ];
+      
+      const computeBMI = ({weight, height, country}) => {
+        const Height = height * 0.3048;
+        let bmi = weight / (Height * Height);
+        for (let i = 0; i< countries.length; i++) {
+            if ( countries[i].toLowerCase() === country.toLowerCase()) {
+                bmi = bmi * 0.82;
+            }
+        }
+        return bmi.toFixed(1);
+    };
+      
+      const getSelectedUser = (userId) => {
+       return users.find(({id}) => id == userId);
+       }
+      
+      const displaySelectedUser = ({target}) => {
+       const user = getSelectedUser(target.value);
+       const properties = Object.keys(user);
+       properties.forEach(prop => {
+       const element1 = document.querySelector('span[data-${prop}]');
+       const element2 = document.querySelector('span[data-${prop}-value]');
+       if(element1){
+       element1.textContent = prop;
+       element2.textContent = user[prop];
+     }
+   })
+      };
+      
+      const letsCalculateBMI = () => {
+        const UserId = document.querySelector('.select-text').value;
+        const user = getSelectedUser(userId);
+        const bmi = computeBMI(user);
+        const bmiResult = document.querySelector('#outcome>p');
+        bmiResult.textContent = `${bmi}`;
+      };
+      
+      const powerupTheUI = () => {
+       const button = document.querySelector('#oracle');
+	   const select = document.querySelector('.select-text');
+       select.addEventListener('change', displaySelectedUser);
+	   button.addEventListener('click',letsCalculateBMI); 
+      };
+      const displayUsers = (users) => {
+       users.forEach((user)=> {
+       let value = document.createElement('option');
+       value.setAttribute('value', user.id);
+       value.textContent = user.name;
+       document.querySelector('.select-text').appendChild(value);
+       });
+      };
+      const fetchAndDisplayUsers = () => {
+       const api = 'https://randomapi.com/api/y1lfp11q?key=LEIX-GF3O-AG7I-6J84';
+        fetch(api).then(result => result.json()).then (({ results}) => {
+         const [ user ] = results;
+         users.push(user);
+         displayUsers([user]);
+         });
+        users.push({
+          age: 40,
+          weight: 75,
+          height: 6,
+          country: 'Nigeria',
+          name: 'Charles Odili',
+          id: 'dfhb454768DghtF'
+        },
+        {
+          age: 22,
+          weight: 45,
+          height: 5,
+          country: 'Uganda',
+          name: 'Esther Maureen',
+          id: 'adcb0987654Efghi'
+        }
+        );
+
+        displayUsers(users);
+      };
+      
+      const startApp = () => {
+        powerupTheUI();
+    	fetchAndDisplayUsers();
+      };
+
+      startApp();
+    </script>
+  </body>
+</html>
